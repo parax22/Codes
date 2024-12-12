@@ -1,0 +1,449 @@
+Stack 
+
+#include <stdio.h>
+#include <stdlib.h>
+ 
+#define MAX 10
+ 
+int stack[MAX];
+int top = -1;
+ 
+void push(int val) {
+    if (top == MAX - 1) {
+        printf("Stack overflow\n");
+    } else {
+        top++;
+        stack[top] = val;
+        printf("%d pushed onto stack\n", val);
+    }
+}
+ 
+int pop() {
+    if (top == -1) {
+        printf("Stack underflow\n");
+        return -1;
+    } else {
+        int val = stack[top];
+        top--;
+        printf("%d popped from stack\n", val);
+        return val;
+    }
+}
+ 
+int isEmpty() {
+    return top == -1;
+}
+ 
+void display() {
+    if (top == -1) {
+        printf("Stack is empty\n");
+    } else {
+        printf("Stack elements are:\n");
+        for (int i = top; i >= 0; i--) {
+            printf("%d\n", stack[i]);
+        }
+    }
+}
+ 
+int main() {
+    push(10);
+    push(20);
+    push(30);
+    display();
+    pop();
+    display();
+    return 0;
+}
+ 
+
+--------------------------------------------------------------------
+Simple Queue
+ 
+
+#include <stdio.h>
+#include <stdlib.h>
+ 
+#define MAX 10
+ 
+int queue[MAX];
+int front = -1;
+int rear = -1;
+ 
+void enqueue(int val) {
+    if (rear == MAX - 1) {
+        printf("Queue overflow\n");
+    } else {
+        if (front == -1) {
+            front = 0;
+        }
+        rear++;
+        queue[rear] = val;
+        printf("%d Inserted to queue\n", val);
+    }
+}
+ 
+int dequeue() {
+    if (front == -1 || front > rear) {
+        printf("Queue underflow\n");
+        return -1;
+    } else {
+        int val = queue[front];
+        front++;
+        printf("%d Deleted from queue\n", val);
+        return val;
+    }
+}
+ 
+ 
+void display() {
+    if (front == -1 || front > rear) {
+        printf("Queue is empty\n");
+    } else {
+        printf("Queue elements are:\n");
+        for (int i = front; i <= rear; i++) {
+            printf("%d\n", queue[i]);
+        }
+    }
+}
+ 
+int main() {
+    enqueue(10);
+    enqueue(20);
+    enqueue(30);
+    display();
+    dequeue();
+    display();
+    return 0;
+}
+ 
+
+--------------------------------------------------------------------
+Circuler Queue
+ 
+
+#include <stdio.h>
+#include <stdlib.h>
+ 
+#define MAX 5
+ 
+int queue[MAX];
+int front = -1;
+int rear = -1;
+ 
+void enqueue(int val) {
+    if ((front == 0 && rear == MAX - 1) || (rear == (front - 1) % (MAX - 1))) {
+        printf("Queue overflow\n");
+    } else if (front == -1) {  // Insert first element
+        front = rear = 0;
+        queue[rear] = val;
+        printf("%d enqueued to queue\n", val);
+    } else if (rear == MAX - 1 && front != 0) {
+        rear = 0;
+        queue[rear] = val;
+        printf("%d enqueued to queue\n", val);
+    } else {
+        rear++;
+        queue[rear] = val;
+        printf("%d enqueued to queue\n", val);
+    }
+}
+ 
+int dequeue() {
+    if (front == -1) {
+        printf("Queue underflow\n");
+        return -1;
+    }
+ 
+    int val = queue[front];
+    queue[front] = -1;
+ 
+    if (front == rear) {
+        front = rear = -1;  // Queue is empty
+    } else if (front == MAX - 1) {
+        front = 0;
+    } else {
+        front++;
+    }
+    printf("%d dequeued from queue\n", val);
+    return val;
+}
+ 
+void display() {
+    if (front == -1) {
+        printf("Queue is empty\n");
+    } else {
+        printf("Queue elements are:\n");
+        if (rear >= front) {
+            for (int i = front; i <= rear; i++) {
+                printf("%d\n", queue[i]);
+            }
+        } else {
+            for (int i = front; i < MAX; i++) {
+                printf("%d\n", queue[i]);
+            }
+            for (int i = 0; i <= rear; i++) {
+                printf("%d\n", queue[i]);
+            }
+        }
+    }
+}
+ 
+int main() {
+    enqueue(10);
+    enqueue(20);
+    enqueue(30);
+    enqueue(40);
+    enqueue(50);
+    display();
+    dequeue();
+    enqueue(60);
+    display();
+    return 0;
+}
+ 
+
+-------------------------------------------------------------------------
+Priority Queue
+ 
+
+#include <stdio.h>
+#include <stdlib.h>
+ 
+#define MAX 10
+ 
+typedef struct {
+    int data;
+    int priority;
+} Node;
+ 
+Node queue[MAX];
+int size = 0;
+ 
+void swap(Node *a, Node *b) {
+    Node temp = *a; *a = *b; *b = temp;
+}
+ 
+void enqueue(int data, int priority) {
+    if (size == MAX) return;
+    int i = size++;
+    queue[i] = (Node){data, priority};
+    while (i && queue[i].priority > queue[(i-1)/2].priority)
+        swap(&queue[i], &queue[(i-1)/2]), i = (i-1)/2;
+}
+ 
+int dequeue() {
+    if (!size) return -1;
+    int data = queue[0].data;
+    queue[0] = queue[--size];
+    for (int i = 0, child; (child = 2*i+1) < size; ) {
+        if (child + 1 < size && queue[child].priority < queue[child+1].priority) ++child;
+        if (queue[i].priority >= queue[child].priority) break;
+        swap(&queue[i], &queue[child]), i = child;
+    }
+    return data;
+}
+ 
+ 
+void display() {
+    for (int i = 0; i < size; i++)
+        printf("(%d, %d) ", queue[i].data, queue[i].priority);
+    printf("\n");
+}
+ 
+int main() {
+    enqueue(10, 3); 
+    enqueue(20, 5); 
+    enqueue(30, 4);
+    display(); 
+    dequeue(); 
+    display();
+    return 0;
+}
+ 
+
+-------------------------------------------------------------------------
+
+Linea And Binary Search
+
+ 
+
+// Online C compiler to run C program online
+#include <stdio.h>
+ 
+int linearsearch(int arr[],int size,int element)
+{
+    for(int i=0 ; i < size ; i++)
+    {
+        if(arr[i]==element)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+ 
+int binarysearch(int arr[], int size, int element)
+{
+    int low,mid,high;
+    low=0;
+    high=size-1;
+    while(low<=high)
+    {
+        mid=(low+high)/2;
+        if(arr[mid] == element)
+        {
+            return mid;
+        }
+        if(arr[mid]<element)
+        {
+            low = mid+1;
+        }
+        else
+        {
+            high = mid-1;
+        }
+    }
+    return -1;
+}
+ 
+int main() 
+{
+    int arr[] = {1,2,3,4,5,6,7,8,9,10};
+    int size = sizeof(arr)/sizeof(int);
+    int element = 10;
+    // int searchindex = linearsearch(arr,size,element);
+    int searchindex = binarysearch(arr,size,element);
+    printf("Element %d is Found at index %d", element , searchindex);
+    return 0;
+}
+ 
+
+---------------------------------------------------------------------------------
+
+Bubble Sort
+
+ 
+
+#include <stdio.h>
+ 
+void viewarr(int *arr,int n)
+{
+    printf("\n Array Data \n");
+    for(int i=0; i<n; i++)
+    {
+        printf("%d ", arr[i]);
+    }
+}
+ 
+void bubblesort(int *arr,int n)
+{
+        for(int i=0; i<n; i++)
+        {
+            for(int j=0; j<n-1-i; j++)
+            {
+                if(arr[j]>arr[j+1])
+                {
+                    int temp = arr[j];
+                    arr[j] = arr[j+1];
+                    arr[j+1] = temp;
+                }
+            }
+        }
+}
+ 
+int main() 
+{
+    
+    
+    int arr[] = {1,56,89,4,5,221,36,45};
+    int n = sizeof(arr)/sizeof(int);
+    viewarr(arr,n);
+    bubblesort(arr,n);
+    viewarr(arr,n);
+    return 0;
+}
+ 
+
+------------------------------------------------------------------------
+Selection Sort
+ 
+
+#include<stdio.h>
+ 
+void printArray(int* A, int n){
+    for (int i = 0; i < n; i++)
+    {
+        printf("%d ", A[i]);
+    }
+    printf("\n");
+}
+ 
+void selectionSort(int *A, int n){
+    int indexOfMin, temp;
+    for (int i = 0; i < n-1; i++)
+    {
+        indexOfMin = i;
+        for (int j = i+1; j < n; j++)
+        {
+            if(A[j] < A[indexOfMin]){
+                indexOfMin = j;
+            }
+        }
+        temp = A[i];
+        A[i] = A[indexOfMin];
+        A[indexOfMin] = temp;
+    }
+}
+ 
+int main()
+{
+    int A[] = {3, 5, 2, 13, 12};
+    int n = 5;
+    printArray(A, n);
+    selectionSort(A, n);
+    printArray(A, n);
+    return 0;
+}
+ 
+
+-----------------------------------------------------------------------------
+
+Insertion Sort
+
+ 
+
+#include<stdio.h>
+ 
+void printArray(int* A, int n){
+    for (int i = 0; i < n; i++)
+    {
+        printf("%d ", A[i]);
+    }
+    printf("\n");
+}
+ 
+void insertionSort(int *A, int n){
+    int key, j;
+ 
+    for (int i = 1; i <= n-1; i++)
+    {
+        key = A[i];
+        j = i-1;
+ 
+        while(j>=0 && A[j] > key){
+            A[j+1] = A[j];
+            j--;
+        }
+        A[j+1] = key;
+    }
+}
+ 
+int main()
+{
+    int A[] = {12, 54, 65, 7, 23, 9};
+    int n = 6;
+    printArray(A, n);
+    insertionSort(A, n);
+    printArray(A, n);
+    return 0;
+}
